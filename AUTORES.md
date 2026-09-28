@@ -2,7 +2,7 @@
 
 | Integrante       | GitHub           | Responsabilidade |
 | ---------------- | ---------------- | ---------------- |
-| Pedro Campos     | @plc232007       |                  |
+| Pedro Campos     | @plc232007       | Administração e Operação.                 |
 | Nome do colega 1 | @usuario-colega1 | A definir        |
 | Nome do colega 2 | @usuario-colega2 | A definir        |
 
