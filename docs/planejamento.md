@@ -20,7 +20,7 @@ As tarefas estão abertas no GitHub, com critérios de aceite, dependências, la
 
 ## Fluxo de trabalho
 
-A estrutura inicial está na branch `chore/estrutura-inicial`, proposta para integração em `main` por pull request. Criar a branch de cada tarefa a partir da `main` atualizada quando o trabalho começar, evitando branches vazias que fiquem desatualizadas. Abrir um pull request usando o modelo do repositório e relacionar a issue.
+A branch `main` reúne a estrutura inicial e as alterações concluídas do projeto. Criar a branch de cada tarefa a partir da `main` atualizada quando o trabalho começar, evitando branches vazias que fiquem desatualizadas. Abrir um pull request usando o modelo do repositório e relacionar a issue.
 
 ```bash
 git switch main
