@@ -1,0 +1,17 @@
+# Configurações locais
+.env
+.env.*
+!.env.example
+
+# Dados locais do PostgreSQL
+pgdata/
+postgres-data/
+
+# Backups gerados
+backups/
+*.dump
+*.backup
+
+# Arquivos temporários
+*.tmp
+.DS_Store
