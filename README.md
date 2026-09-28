@@ -146,7 +146,7 @@ docker compose exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB
 
 Defina `SET search_path TO academico, public;` nos scripts que usam as tabelas sem qualificar o schema. Antes de executar seu DDL e sua carga, documente como preparar um banco de teste limpo: o ambiente aluno já cria tabelas e dados e a execução sobre ele pode causar conflitos.
 
-Capture os planos de referência antes de aplicar os índices. Execute os cenários de concorrência separadamente, em duas sessões, conforme seus roteiros.
+Capture os planos de referência antes de aplicar os índices. Execute os cenários de concorrência separadamente, em duas sessões. Ao implementá-los, registre nos comentários dos scripts a ordem dos comandos e os pontos de pausa entre as sessões; a numeração dos arquivos não define essa intercalação.
 
 ### 4. Validar a instalação
 
