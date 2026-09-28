@@ -1,0 +1,3 @@
+-- Cenário: 03_isolamento
+-- Situação: a implementar.
+-- TODO: Verificar o estado final e registrar o resultado observado.

@@ -1,0 +1,3 @@
+-- 02_carga
+-- Situação: a implementar.
+-- TODO: Preparar dados coerentes com a grade de 2026/2: no mínimo 100 alunos, 6 turmas e 300 matrículas.

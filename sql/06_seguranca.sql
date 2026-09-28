@@ -1,0 +1,4 @@
+-- 06_seguranca
+-- Situação: a implementar.
+-- TODO: Definir aluno, secretaria e coordenacao com GRANT/REVOKE.
+-- Configurar RLS para impedir que um aluno consulte o histórico de outro.

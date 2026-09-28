@@ -1,0 +1,3 @@
+-- Situação: a implementar.
+-- TODO: Privilégios dos três papéis e acesso ao histórico com dois alunos distintos.
+-- Documentar preparação, resultado esperado e limpeza dos dados de teste.

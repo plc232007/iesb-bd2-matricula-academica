@@ -55,7 +55,7 @@ A escala do seminário será divulgada em 26/10/2026. O prazo do Marco 1 deve se
 
 ## Organização proposta
 
-Os caminhos abaixo são uma convenção sugerida e devem acompanhar os arquivos efetivamente implementados.
+A estrutura está criada. Os arquivos SQL contêm somente comentários e tarefas pendentes; não há implementação do banco. `compose.yaml` e `.env.example` serão adicionados a partir do ambiente oficial.
 
 | Caminho | Finalidade |
 | --- | --- |
@@ -91,10 +91,10 @@ Os cenários concorrentes devem ter arquivos numerados e instruções explícita
 
 ### 1. Obter o projeto
 
-Substitua `SEU_USUARIO` pelo proprietário do repositório:
+Clone o repositório:
 
 ```bash
-git clone https://github.com/SEU_USUARIO/iesb-bd2-matricula-academica.git
+git clone https://github.com/plc232007/iesb-bd2-matricula-academica.git
 cd iesb-bd2-matricula-academica
 ```
 
@@ -111,7 +111,7 @@ Se houver `.env.example`, copie-o para `.env` e preencha os valores exigidos. N�
 
 ### 3. Executar os scripts
 
-**Exemplo a adaptar:** substitua os três valores abaixo pelos nomes reais definidos no ambiente oficial. Os arquivos SQL também precisam existir antes da execução.
+**Exemplo a adaptar:** substitua os três valores abaixo pelos nomes reais definidos no ambiente oficial. Os arquivos SQL precisam ser implementados antes da execução.
 
 ```bash
 DB_SERVICE='SUBSTITUIR_PELO_SERVICO'
@@ -152,6 +152,8 @@ Os planos de execução devem ser salvos em arquivos próprios. As comparações
 A documentação operacional deve registrar os comandos reais de backup e restauração, os pré-requisitos e a verificação posterior. Registrar também como os papéis necessários são recriados ou recuperados.
 
 ## Colaboração
+
+Consulte o [quadro de tarefas](docs/planejamento.md) e as [issues no GitHub](https://github.com/plc232007/iesb-bd2-matricula-academica/issues).
 
 1. Abrir uma issue com objetivo, entregáveis e critérios de aceite.
 2. Definir um responsável e associar ao marco correspondente.
