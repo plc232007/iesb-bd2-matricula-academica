@@ -1,0 +1,3 @@
+-- Situação: a implementar.
+-- TODO: Aceitação de dados válidos e rejeição das violações de restrições.
+-- Documentar preparação, resultado esperado e limpeza dos dados de teste.

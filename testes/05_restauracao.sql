@@ -1,0 +1,3 @@
+-- Situação: a implementar.
+-- TODO: Dados, objetos, restrições e permissões após restaurar em ambiente limpo.
+-- Documentar preparação, resultado esperado e limpeza dos dados de teste.

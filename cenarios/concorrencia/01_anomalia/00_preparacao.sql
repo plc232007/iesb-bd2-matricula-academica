@@ -1,0 +1,3 @@
+-- Cenário: 01_anomalia
+-- Situação: a implementar.
+-- TODO: Preparar uma turma com uma vaga restante e dados para duas matrículas concorrentes.

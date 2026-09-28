@@ -1,0 +1,3 @@
+-- Cenário: 02_bloqueio
+-- Situação: a implementar.
+-- TODO: Preparar uma turma com uma vaga restante e dados para duas matrículas concorrentes.

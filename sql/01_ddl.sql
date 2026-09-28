@@ -1,0 +1,3 @@
+-- 01_ddl
+-- Situação: a implementar.
+-- TODO: Definir tabelas, tipos, domínios, colunas geradas, chaves e restrições conforme o modelo oficial.
