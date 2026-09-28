@@ -1,0 +1,36 @@
+# Adaptado do ambiente aluno fornecido pelo professor.
+# Os scripts originais inicializam somente um volume de dados vazio.
+services:
+  postgres:
+    image: postgres:16
+    container_name: bd2_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bd2}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bd2}
+      POSTGRES_DB: ${POSTGRES_DB:-matricula}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - bd2_dados:/var/lib/postgresql/data
+      - ./ambiente_aluno_PG16_com_bd/aluno_pg16/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: bd2_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@iesb.br}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "${PGADMIN_PORT:-8080}:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  bd2_dados:

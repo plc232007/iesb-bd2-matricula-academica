@@ -1,6 +1,6 @@
 # Restauracao
 
-Situação: a documentar e implementar após receber o ambiente oficial.
+Situação: a documentar e implementar no ambiente aluno configurado em `compose.yaml`.
 
 - [ ] Definir pré-requisitos e variáveis de conexão.
 - [ ] Registrar os comandos reais e o formato do backup.

@@ -1,6 +1,6 @@
 # Planejamento
 
-As tarefas estão abertas no GitHub, com critérios de aceite, dependências, labels e marcos. Os responsáveis serão definidos pelo grupo conforme AUTORES.md. Nenhuma implementação foi concluída nesta preparação.
+As tarefas estão abertas no GitHub, com critérios de aceite, dependências, labels e marcos. Os responsáveis serão definidos pelo grupo conforme AUTORES.md. O ambiente aluno foi incorporado com PostgreSQL 16, pgAdmin, modelo e dados fornecidos pelo professor. A implementação das entregas continua pendente. Na issue #1, falta definir os integrantes e suas frentes.
 
 | Issue | Tarefa | Marco | Branch sugerida |
 | --- | --- | --- | --- |

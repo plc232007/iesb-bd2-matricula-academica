@@ -4,7 +4,7 @@ Projeto acadêmico de **Banco de Dados II (CCO072)** do Centro Universitário IE
 
 Implementação de um banco de dados para matrícula acadêmica, com foco em integridade, consultas avançadas, desempenho, concorrência, segurança e recuperação.
 
-> **Situação:** documentação inicial de planejamento. As listas abaixo representam requisitos a verificar, não funcionalidades concluídas. O modelo relacional e o ambiente Docker oficiais devem ser incorporados a partir dos materiais do professor. Ajuste a seção de execução e valide-a antes da entrega.
+> **Situação:** documentação inicial de planejamento. As listas abaixo representam requisitos a verificar, não funcionalidades concluídas. O ambiente aluno fornecido pelo professor está incorporado, com modelo e dados de aula. Os scripts de entrega em `sql/` continuam pendentes de implementação.
 
 ## Objetivo
 
@@ -12,7 +12,7 @@ Transformar o modelo relacional fornecido pelo professor em um banco PostgreSQL 
 
 ## Tecnologias
 
-- PostgreSQL 17 no ambiente Docker oficial da disciplina.
+- PostgreSQL 16 e pgAdmin no ambiente aluno fornecido pelo professor. O PDF menciona PostgreSQL 17; este repositório segue a versão 16 do pacote recebido, escolhida para compatibilidade com o DBeaver do laboratório.
 - SQL e recursos nativos de administração do PostgreSQL.
 - Git e GitHub para versionamento, revisão e acompanhamento de tarefas.
 
@@ -55,13 +55,14 @@ A escala do seminário será divulgada em 26/10/2026. O prazo do Marco 1 deve se
 
 ## Organização proposta
 
-A estrutura está criada. Os arquivos SQL contêm somente comentários e tarefas pendentes; não há implementação do banco. `compose.yaml` e `.env.example` serão adicionados a partir do ambiente oficial.
+A estrutura está criada. Os arquivos em `sql/` contêm somente comentários e tarefas pendentes. O modelo e os dados de aula fornecidos pelo professor estão em `ambiente_aluno_PG16_com_bd/aluno_pg16/initdb/`, separados das entregas do grupo.
 
 | Caminho | Finalidade |
 | --- | --- |
 | `README.md` | Visão geral, instalação e execução |
 | `AUTORES.md` | Integrantes e responsabilidades formais |
-| `compose.yaml` | Ambiente oficial, se fornecido neste formato |
+| `compose.yaml` | Ambiente aluno adaptado para execução pela raiz |
+| `ambiente_aluno_PG16_com_bd/` | Pacote original do professor, com instruções, modelo e dados de aula |
 | `.env.example` | Exemplo das variáveis usadas pelo ambiente, sem credenciais pessoais |
 | `sql/01_ddl.sql` | Tipos, domínios, tabelas e restrições |
 | `sql/02_carga.sql` | Carga inicial e dados sintéticos |
@@ -81,52 +82,71 @@ A estrutura está criada. Os arquivos SQL contêm somente comentários e tarefas
 
 Os cenários concorrentes devem ter arquivos numerados e instruções explícitas sobre a ordem dos comandos entre duas sessões. Não devem ser executados em lote junto à instalação.
 
-## Como executar — completar com o ambiente oficial
-
-### Pré-requisitos
-
-- Git.
-- Docker e o comando Compose compatíveis com o material da disciplina.
-- Arquivos oficiais do ambiente e modelo relacional fornecidos pelo professor.
+## Como executar
 
 ### 1. Obter o projeto
 
-Clone o repositório:
+Pré-requisitos: Git, Docker em execução e Docker Compose.
 
 ```bash
 git clone https://github.com/plc232007/iesb-bd2-matricula-academica.git
 cd iesb-bd2-matricula-academica
+cp .env.example .env
 ```
 
-### 2. Preparar e iniciar o ambiente
+### 2. Iniciar o ambiente aluno
 
-Incorpore o ambiente oficial. Documente aqui o nome do serviço PostgreSQL, o banco, o usuário, as variáveis necessárias e a porta. Caso ele use um arquivo Compose na raiz, a inicialização será:
+Execute pela raiz do repositório:
 
 ```bash
 docker compose up -d
 docker compose ps
+docker compose logs -f postgres
 ```
 
-Se houver `.env.example`, copie-o para `.env` e preencha os valores exigidos. Não versione o `.env`.
+O serviço `postgres` usa PostgreSQL 16. Na primeira inicialização de um volume vazio, executa automaticamente `01_modelo.sql` e `02_dados.sql` do pacote do professor, nessa ordem. O volume `bd2_dados` mantém os dados entre reinicializações. Não é necessário executar esses scripts manualmente.
 
-### 3. Executar os scripts
+| Serviço | Endereço | Acesso padrão de aula |
+| --- | --- | --- |
+| PostgreSQL | `localhost:5432` | Banco `matricula`, usuário `bd2`, senha `bd2` |
+| pgAdmin | `http://localhost:8080` | Login `admin@iesb.br`, senha `admin` |
 
-**Exemplo a adaptar:** substitua os três valores abaixo pelos nomes reais definidos no ambiente oficial. Os arquivos SQL precisam ser implementados antes da execução.
+Os valores podem ser personalizados no `.env`. No pgAdmin, registre o servidor com host **`postgres`** e porta **5432**, usando o banco e usuário configurados. No DBeaver, use `localhost` e a porta publicada (5432 por padrão).
+
+Para abrir o terminal SQL:
 
 ```bash
-DB_SERVICE='SUBSTITUIR_PELO_SERVICO'
-DB_USER='SUBSTITUIR_PELO_USUARIO'
-DB_NAME='SUBSTITUIR_PELO_BANCO'
-
-docker compose exec -T "$DB_SERVICE" psql -U "$DB_USER" -d "$DB_NAME" -v ON_ERROR_STOP=1 < sql/01_ddl.sql
-docker compose exec -T "$DB_SERVICE" psql -U "$DB_USER" -d "$DB_NAME" -v ON_ERROR_STOP=1 < sql/02_carga.sql
-docker compose exec -T "$DB_SERVICE" psql -U "$DB_USER" -d "$DB_NAME" -v ON_ERROR_STOP=1 < sql/03_consultas.sql
-docker compose exec -T "$DB_SERVICE" psql -U "$DB_USER" -d "$DB_NAME" -v ON_ERROR_STOP=1 < sql/04_views.sql
+docker compose exec postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 ```
 
-Antes de aplicar `sql/05_indices.sql`, capture os planos de referência das consultas escolhidas. Depois, aplique e avalie cada índice conforme o procedimento documentado em `evidencias/explain/`. Conclua aplicando `sql/06_seguranca.sql` com um usuário autorizado a configurar roles e políticas.
+As tabelas ficam no schema `academico`. No editor SQL:
 
-Se o ambiente oficial já executar scripts de inicialização automaticamente, documente esse mecanismo e ajuste este roteiro para não executar o DDL duas vezes.
+```sql
+SET search_path TO academico, public;
+SELECT count(*) FROM aluno;
+SELECT count(*) FROM turma;
+SELECT count(*) FROM matricula;
+```
+
+Para desligar mantendo os dados, use `docker compose down`. O comando `docker compose down -v` remove o volume e apaga os dados locais; a próxima inicialização recarrega os arquivos do professor. Alterar arquivos em `initdb/` não reaplica a carga em um volume já inicializado.
+
+O pacote original está preservado em [ambiente aluno](ambiente_aluno_PG16_com_bd/aluno_pg16/LEIA-ME.md). Use o Compose da raiz como ponto de entrada do projeto; o Compose original é mantido como referência. Se o ambiente original já estiver ligado, desligue-o pela pasta original antes de iniciar pela raiz, pois ambos usam os mesmos nomes de contêiner e portas. Os volumes dos dois projetos Compose podem ser diferentes; os dados existentes não são migrados automaticamente.
+
+Validação da integração em 28/09/2026: inicialização em volume novo concluída no PostgreSQL 16.15, com 120 alunos, 6 turmas e 160 matrículas. A carga fornecida ainda não atende às 300 matrículas exigidas pelo projeto; essa complementação faz parte da issue #3.
+
+### 3. Desenvolver as entregas
+
+Os arquivos `sql/01_ddl.sql` a `sql/06_seguranca.sql` são espaços reservados para o trabalho do grupo e não são executados automaticamente pelo Docker. O modelo e a carga recebidos são materiais de aula; sua presença não conclui as issues de DDL e carga do projeto.
+
+Ao implementar um script, execute-o pela raiz, por exemplo:
+
+```bash
+docker compose exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1' < sql/03_consultas.sql
+```
+
+Defina `SET search_path TO academico, public;` nos scripts que usam as tabelas sem qualificar o schema. Antes de executar seu DDL e sua carga, documente como preparar um banco de teste limpo: o ambiente aluno já cria tabelas e dados e a execução sobre ele pode causar conflitos.
+
+Capture os planos de referência antes de aplicar os índices. Execute os cenários de concorrência separadamente, em duas sessões, conforme seus roteiros.
 
 ### 4. Validar a instalação
 
