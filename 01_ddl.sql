@@ -363,8 +363,13 @@ CREATE TABLE IF NOT EXISTS tb_log_matricula (
 -- ---------------------------------------------------------------------
 -- Trigger = função que o banco executa SOZINHO antes/depois de um
 -- INSERT/UPDATE/DELETE. Aqui ela recusa a matrícula quando a turma lotou.
+-- SET search_path na função: o gatilho roda na sessão de quem fez o INSERT.
+-- Se essa pessoa não tiver dado SET search_path (ex.: a secretaria entrando
+-- pelo DBeaver), "tb_turma" não seria encontrada e a matrícula daria erro.
 CREATE OR REPLACE FUNCTION fn_tb_valida_vaga() RETURNS trigger
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql
+SET search_path = academico, public
+AS $$
 DECLARE
     v_vagas     smallint;
     v_ocupadas  integer;
