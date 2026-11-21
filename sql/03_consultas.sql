@@ -1,5 +1,0 @@
--- 03_consultas
--- Situação: a implementar.
--- TODO: Escrever 10 consultas comentadas de complexidade crescente.
--- Incluir junção externa com agregação, recursão de pré-requisitos, recursão de disciplinas elegíveis,
--- ranking e percentil, e LAG para evolução do rendimento.

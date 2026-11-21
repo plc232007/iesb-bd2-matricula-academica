@@ -1,4 +1,0 @@
--- 05_indices
--- Situação: a implementar.
--- TODO: Criar pelo menos 4 índices, incluindo um parcial.
--- Capturar EXPLAIN (ANALYZE, BUFFERS) antes e depois de cada índice em evidencias/explain/.

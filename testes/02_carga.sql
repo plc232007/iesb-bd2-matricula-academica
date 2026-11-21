@@ -1,3 +1,0 @@
--- Situação: a implementar.
--- TODO: Contagens mínimas, relacionamentos e coerência dos dados.
--- Documentar preparação, resultado esperado e limpeza dos dados de teste.

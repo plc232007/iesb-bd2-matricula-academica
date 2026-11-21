@@ -1,4 +1,0 @@
--- 04_views
--- Situação: a implementar.
--- TODO: Criar views de oferta, vagas e histórico e uma materialized view de indicadores.
--- Documentar e justificar a política de atualização em docs/decisoes.md.

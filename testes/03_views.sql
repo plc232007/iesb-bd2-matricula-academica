@@ -1,3 +1,0 @@
--- Situação: a implementar.
--- TODO: Resultados das views e atualização dos indicadores.
--- Documentar preparação, resultado esperado e limpeza dos dados de teste.

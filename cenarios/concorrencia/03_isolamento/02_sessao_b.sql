@@ -1,3 +1,0 @@
--- Cenário: 03_isolamento
--- Situação: a implementar.
--- TODO: Definir os comandos da sessão B e os pontos de pausa.
