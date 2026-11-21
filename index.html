@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marco 2 · Matrícula Acadêmica</title>
+<meta name="description" content="Explicação do Marco 2 do projeto de Banco de Dados II: o que o professor pediu, o código e como funciona.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+<style>
+:root {
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --surface-2: #efede6;
+  --text: #1d1f22;
+  --muted: #5d6168;
+  --line: #dedbd2;
+  --accent: #1f5f8b;
+  --accent-soft: #e3eef6;
+  --ok: #2f7a4b;
+  --ok-soft: #e4f2e9;
+  --warn: #9a5b12;
+  --warn-soft: #f8ecdb;
+  --bad: #a33a32;
+  --bad-soft: #f7e3e1;
+  --code-bg: #1e2329;
+  --code-text: #d8dee6;
+  --code-comment: #8a96a3;
+  --code-kw: #f0a35e;
+  --code-str: #9fd38a;
+  --code-num: #7cc4f0;
+  --code-fn: #e6c07b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14161a;
+    --surface: #1c1f24;
+    --surface-2: #23272d;
+    --text: #e6e8eb;
+    --muted: #a0a6ae;
+    --line: #31363d;
+    --accent: #7ab8e6;
+    --accent-soft: #1d3142;
+    --ok: #7dcc98;
+    --ok-soft: #1c3326;
+    --warn: #e5b070;
+    --warn-soft: #3a2c19;
+    --bad: #ee8f87;
+    --bad-soft: #3d2220;
+    --code-bg: #0f1114;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14161a;
+  --surface: #1c1f24;
+  --surface-2: #23272d;
+  --text: #e6e8eb;
+  --muted: #a0a6ae;
+  --line: #31363d;
+  --accent: #7ab8e6;
+  --accent-soft: #1d3142;
+  --ok: #7dcc98;
+  --ok-soft: #1c3326;
+  --warn: #e5b070;
+  --warn-soft: #3a2c19;
+  --bad: #ee8f87;
+  --bad-soft: #3d2220;
+  --code-bg: #0f1114;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+a { color: var(--accent); }
+code, pre { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+:not(pre) > code {
+  background: var(--surface-2);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: .88em;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  max-width: 1240px;
+  margin: 0 auto;
+}
+nav.toc {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 32px 20px 32px 24px;
+  border-right: 1px solid var(--line);
+}
+nav.toc .brand { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+nav.toc .sub { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+nav.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: s; }
+nav.toc li a {
+  display: block;
+  padding: 6px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 14px;
+}
+nav.toc li a:hover, nav.toc li a.ativo { background: var(--accent-soft); color: var(--accent); }
+nav.toc .tema {
+  margin-top: 24px;
+  font: inherit;
+  font-size: 13px;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+main { padding: 40px 48px 96px; min-width: 0; }
+header.hero { margin-bottom: 40px; }
+header.hero .disc { color: var(--muted); font-size: 14px; letter-spacing: .02em; }
+header.hero h1 { font-size: 34px; line-height: 1.2; margin: 8px 0 12px; }
+header.hero p { max-width: 720px; color: var(--muted); margin: 0 0 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font-size: 13px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  text-decoration: none;
+  color: var(--text);
+}
+
+section { margin-top: 56px; }
+section > h2 {
+  font-size: 24px;
+  margin: 0 0 4px;
+  padding-top: 8px;
+  border-top: 2px solid var(--text);
+}
+section > .frente { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+h3 { font-size: 18px; margin: 36px 0 10px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px 22px;
+  margin: 16px 0;
+}
+.pedido {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin: 12px 0 16px;
+  font-size: 15px;
+}
+.pedido b { color: var(--accent); }
+.rotulo {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+  margin: 18px 0 6px;
+}
+pre {
+  margin: 0;
+  background: var(--code-bg);
+  color: var(--code-text);
+  border-radius: 8px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+pre code.hljs { background: none; padding: 0; color: var(--code-text); }
+.hljs-comment { color: var(--code-comment); font-style: italic; }
+.hljs-keyword, .hljs-built_in, .hljs-type { color: var(--code-kw); }
+.hljs-string { color: var(--code-str); }
+.hljs-number, .hljs-literal { color: var(--code-num); }
+.hljs-title, .hljs-variable, .hljs-attr { color: var(--code-fn); }
+.arquivo {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.como ul, .como ol { padding-left: 20px; margin: 6px 0; }
+.como li { margin: 4px 0; }
+
+.arguicao {
+  border: 1px dashed var(--warn);
+  background: var(--warn-soft);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 18px 0 0;
+  font-size: 15px;
+}
+.arguicao b { color: var(--warn); }
+.arguicao ul { margin: 6px 0 0; padding-left: 20px; }
+
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+.tabela { overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: var(--surface-2); font-weight: 600; font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tag { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.tag.ok { background: var(--ok-soft); color: var(--ok); }
+.tag.bad { background: var(--bad-soft); color: var(--bad); }
+
+.barras { display: grid; gap: 14px; margin: 16px 0; }
+.barra-item .nome { font-family: "IBM Plex Mono", monospace; font-size: 13px; margin-bottom: 4px; }
+.barra-linha { display: grid; grid-template-columns: 64px 1fr 70px; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+.barra { height: 12px; border-radius: 3px; }
+.barra.antes { background: var(--bad); opacity: .75; }
+.barra.depois { background: var(--ok); }
+
+.linha-tempo { display: grid; grid-template-columns: 48px 1fr 1fr; font-size: 14px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.linha-tempo > div { padding: 8px 12px; border-bottom: 1px solid var(--line); }
+.linha-tempo .cab { background: var(--surface-2); font-weight: 600; font-size: 13px; }
+.linha-tempo .t { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 13px; }
+.linha-tempo .ruim { color: var(--bad); font-weight: 600; }
+.linha-tempo .bom { color: var(--ok); font-weight: 600; }
+.linha-tempo .fim { border-bottom: none; }
+
+.grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 12px 0; }
+.grade .card { margin: 0; }
+.grade .card h4 { margin: 0 0 6px; font-size: 15px; }
+.grade .card p { margin: 0; font-size: 14.5px; color: var(--muted); }
+
+.passos { counter-reset: p; list-style: none; padding: 0; }
+.passos li { counter-increment: p; position: relative; padding-left: 40px; margin: 14px 0; }
+.passos li::before {
+  content: counter(p);
+  position: absolute; left: 0; top: 0;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--text); color: var(--bg);
+  display: grid; place-items: center;
+  font-size: 13px; font-weight: 600;
+}
+
+footer { margin-top: 72px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+
+@media (max-width: 900px) {
+  .layout { display: block; }
+  nav.toc {
+    position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line);
+    padding: 16px;
+  }
+  nav.toc ol { display: flex; flex-wrap: wrap; gap: 4px; }
+  nav.toc li a { padding: 4px 8px; font-size: 13px; }
+  main { padding: 24px 16px 64px; }
+  header.hero h1 { font-size: 26px; }
+  .card { padding: 16px; }
+  pre { font-size: 12.5px; padding: 12px; }
+  .linha-tempo { font-size: 13px; grid-template-columns: 36px 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc" aria-label="Seções">
+  <div class="brand">Matrícula Acadêmica</div>
+  <div class="sub">Marco 2 · BD2 · IESB 2026/2</div>
+  <ol>
+    <li><a href="#mapa">Mapa do que foi pedido</a></li>
+    <li><a href="#ambiente">Ambiente Docker</a></li>
+    <li><a href="#integridade">DDL e integridade</a></li>
+    <li><a href="#views">Views</a></li>
+    <li><a href="#indices">Índices e EXPLAIN</a></li>
+    <li><a href="#concorrencia">Concorrência</a></li>
+    <li><a href="#seguranca">Segurança e RLS</a></li>
+    <li><a href="#backup">Backup e restauração</a></li>
+    <li><a href="#demo">Roteiro da demonstração</a></li>
+    <li><a href="#pendente">O que falta</a></li>
+  </ol>
+  <button class="tema" id="tema" type="button">Alternar tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="disc">Banco de Dados II (CCO072) · Prof. Rodrigo Gonçalves</div>
+  <h1>Marco 2: o que fizemos, por que e como funciona</h1>
+  <p>Página para o grupo revisar o Marco 2 antes de juntar na <code>main</code>. Cada parte mostra o que o enunciado pede, o trecho de código que resolve e uma explicação de como funciona. Como a arguição é cruzada, todo mundo precisa entender as três frentes, e não só a sua.</p>
+  <div class="chips">
+    <span class="chip">André Matos</span>
+    <span class="chip">Luiz Felipe</span>
+    <span class="chip">Pedro Campos</span>
+    <a class="chip" href="https://github.com/plc232007/iesb-bd2-matricula-academica/tree/feature/marco2">Código na branch feature/marco2 ↗</a>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<section id="mapa">
+  <h2>Mapa do que foi pedido</h2>
+  <div class="frente">Seção 4.2 do enunciado, item por item, e onde está no repositório</div>
+  <div class="tabela">
+  <table>
+    <thead><tr><th>Pedido no enunciado</th><th>Onde está</th><th>Situação</th></tr></thead>
+    <tbody>
+      <tr><td>3 views e 1 materialized view com política de atualização justificada</td><td><code>04_views.sql</code></td><td><span class="tag ok">feito</span></td></tr>
+      <tr><td>Ao menos 4 índices, um parcial, com EXPLAIN antes e depois</td><td><code>05_indices.sql</code>, <code>evidencias/</code></td><td><span class="tag ok">feito</span></td></tr>
+      <tr><td>A anomalia da última vaga e as duas correções, com comparação</td><td><code>concorrencia/</code></td><td><span class="tag ok">feito</span></td></tr>
+      <tr><td>Roles e RLS impedindo um aluno de ver o histórico de outro</td><td><code>06_seguranca.sql</code></td><td><span class="tag ok">feito</span></td></tr>
+      <tr><td>Backup e restauração reproduzíveis</td><td><code>operacao/</code></td><td><span class="tag ok">feito</span></td></tr>
+      <tr><td>Restrições de integridade funcionando (pedido na demonstração)</td><td><code>07_testes_integridade.sql</code></td><td><span class="tag ok">feito</span></td></tr>
+      <tr><td>README que sobe o banco do zero e AUTORES.md com a frente de cada um</td><td><code>README.md</code>, <code>AUTORES.md</code></td><td><span class="tag ok">feito</span></td></tr>
+      <tr><td>Bônus: particionamento do histórico ou JSONB com índice GIN</td><td>—</td><td><span class="tag bad">não feito</span></td></tr>
+      <tr><td>Histórico de commits distribuído entre os integrantes</td><td>Git</td><td><span class="tag bad">pendente</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="ambiente">
+  <h2>Ambiente Docker</h2>
+  <div class="frente">Base para a demonstração ao vivo</div>
+
+  <div class="pedido"><b>Pedido:</b> "Demonstração ao vivo: o banco rodando no ambiente Docker [...] Não é permitido vídeo gravado ou captura de tela." E o README tem que subir o banco do zero.</div>
+
+  <div class="arquivo">compose.yaml</div>
+<pre><code class="language-yaml">services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: bd2
+      POSTGRES_PASSWORD: bd2
+      POSTGRES_DB: matricula
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - bd2_dados:/var/lib/postgresql/data
+      - ./:/docker-entrypoint-initdb.d:ro</code></pre>
+
+  <div class="rotulo">Como funciona</div>
+  <div class="como">
+    <ul>
+      <li>A pasta do projeto é montada em <code>/docker-entrypoint-initdb.d</code>. Na <b>primeira</b> subida, com o volume vazio, a imagem do Postgres roda sozinha todos os <code>.sql</code> dessa pasta em ordem alfabética, de <code>01</code> até <code>07</code>. Por isso os arquivos são numerados.</li>
+      <li>Se o volume <code>bd2_dados</code> já tiver dados, ela pula essa etapa e mostra <code>Skipping initialization</code> no log. Para recriar tudo: <code>docker compose down -v</code> e depois <code>docker compose up -d</code>.</li>
+      <li><code>${POSTGRES_PORT:-5432}</code> quer dizer "use a variável, ou 5432 se ela não existir". Quem já tem um Postgres instalado na máquina cria um <code>.env</code> com <code>POSTGRES_PORT=5435</code>. A porta de dentro do container continua sendo 5432.</li>
+      <li>Testamos com PostgreSQL 16 e 17. O 17 é o do ambiente oficial da disciplina.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="integridade">
+  <h2>DDL e restrições de integridade</h2>
+  <div class="frente">Frente: Modelagem Física e Desempenho · <code>01_ddl.sql</code> (Marco 1) e <code>07_testes_integridade.sql</code></div>
+
+  <div class="pedido"><b>Pedido:</b> "Implementação do DDL completo: tabelas, tipos, domínios, chaves e todas as restrições de integridade". Na demonstração: "as restrições de integridade em funcionamento".</div>
+
+  <p>O DDL é do Marco 1. No Marco 2 foram duas coisas: uma correção no gatilho e um script que tenta quebrar cada regra para mostrar o banco recusando.</p>
+
+  <h3>As restrições que mais caem na arguição</h3>
+  <div class="arquivo">01_ddl.sql</div>
+<pre><code class="language-sql">-- DOMÍNIO: tipo base + regra. Toda coluna nota_t herda o CHECK.
+CREATE DOMAIN nota_t AS numeric(4,2) CHECK (VALUE &gt;= 0 AND VALUE &lt;= 10);
+
+-- COLUNA GERADA: o banco calcula, ninguém consegue gravar valor errado
+ch_total smallint GENERATED ALWAYS AS (ch_teorica + ch_pratica) STORED,
+
+-- ÍNDICE ÚNICO PARCIAL: no máximo um currículo ativo por curso
+CREATE UNIQUE INDEX uq_tb_curriculo_ativo ON tb_curriculo (curso_id) WHERE ativo;
+
+-- EXCLUDE: a mesma sala não pode ter dois horários que se cruzam no mesmo dia
+CONSTRAINT ex_tb_sala_ocupada
+    EXCLUDE USING gist (
+        sala_id    WITH =,
+        dia_semana WITH =,
+        (timerange(horario_inicio, horario_fim)) WITH &amp;&amp;
+    )</code></pre>
+
+  <div class="rotulo">Como funciona</div>
+  <div class="como">
+    <ul>
+      <li><b>Domínio</b>: a regra fica num lugar só. Se o limite da nota mudar, muda no domínio e vale para A1, A2 e A3.</li>
+      <li><b>Coluna gerada</b>: <code>ch_total</code> e <code>media_final</code> são calculadas pelo banco a cada INSERT/UPDATE. Tentar gravar nelas dá erro, então nunca ficam fora de sincronia.</li>
+      <li><b>Único parcial</b>: só as linhas com <code>ativo = true</code> entram no índice. Dentro delas o <code>curso_id</code> não pode repetir, e currículos antigos (inativos) podem existir à vontade.</li>
+      <li><b>EXCLUDE</b> é um UNIQUE generalizado. Em vez de proibir linhas iguais, proíbe linhas que se <i>sobrepõem</i>: mesma sala (<code>=</code>), mesmo dia (<code>=</code>) e intervalos que se cruzam (<code>&amp;&amp;</code>). Usa índice GiST, e a extensão <code>btree_gist</code> é o que permite misturar <code>=</code> de inteiro com <code>&amp;&amp;</code> de intervalo no mesmo índice.</li>
+    </ul>
+  </div>
+
+  <h3>Correção no gatilho de vagas</h3>
+  <div class="arquivo">01_ddl.sql</div>
+<pre><code class="language-sql">CREATE OR REPLACE FUNCTION fn_tb_valida_vaga() RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = academico, public   -- linha nova do Marco 2
+AS $$
+...
+    SELECT count(*) INTO v_ocupadas
+      FROM tb_matricula_aluno
+     WHERE turma_id = NEW.turma_id
+       AND status   = 'MATRICULADO'
+       AND matricula_aluno_id &lt;&gt; COALESCE(NEW.matricula_aluno_id, -1);
+
+    IF v_ocupadas &gt;= v_vagas THEN
+        RAISE EXCEPTION 'Turma % sem vagas (% de %)', NEW.turma_id, v_ocupadas, v_vagas
+              USING ERRCODE = 'check_violation';
+    END IF;</code></pre>
+
+  <div class="rotulo">Como funciona</div>
+  <div class="como">
+    <p>O gatilho roda na sessão de quem fez o INSERT. Quando testamos com o usuário <code>usuario_secretaria</code>, o <code>search_path</code> dele não tinha o schema <code>academico</code> e a matrícula falhava com <code>relation "tb_turma" does not exist</code>. Com o <code>SET search_path</code> na própria função, ela sempre procura as tabelas no lugar certo, seja quem for o usuário.</p>
+  </div>
+
+  <h3>Testes que mostram as regras funcionando</h3>
+  <div class="arquivo">07_testes_integridade.sql</div>
+<pre><code class="language-sql">-- 1) DOMÍNIO nota_t: nota maior que 10
+DO $$
+BEGIN
+    UPDATE tb_historico SET nota_a1 = 11
+    WHERE matricula_aluno_id = (SELECT min(matricula_aluno_id) FROM tb_historico);
+    RAISE NOTICE 'FALHOU 1: aceitou nota 11';
+EXCEPTION WHEN check_violation THEN
+    RAISE NOTICE 'OK 1 (domínio nota_t): %', SQLERRM;
+END $$;</code></pre>
+
+  <div class="rotulo">Como funciona</div>
+  <div class="como">
+    <p>São 10 blocos iguais a esse, um por regra: domínio, CHECK do CPF, CHECK entre duas colunas, UNIQUE, FK, EXCLUDE, pré-requisito de si mesma, único parcial, coluna gerada e o gatilho de vagas. Cada um tenta gravar um dado errado:</p>
+    <ul>
+      <li>se o banco recusa, o erro cai no <code>EXCEPTION</code> e aparece <code>OK n</code> com a mensagem do Postgres;</li>
+      <li>se aceita, aparece <code>FALHOU</code>.</li>
+    </ul>
+    <p>Um erro dentro de um bloco <code>DO</code> desfaz só o que o bloco fez, então nada fica gravado. Cada bloco captura um erro <b>específico</b> (<code>check_violation</code>, <code>unique_violation</code>...). Se o banco recusasse pelo motivo errado, o teste não esconderia isso.</p>
+  </div>
+
+  <div class="arguicao"><b>Pode cair na arguição</b>
+    <ul>
+      <li>Qual a diferença entre UNIQUE e EXCLUDE? Por que precisa de <code>btree_gist</code>?</li>
+      <li>Por que <code>media_final</code> é coluna gerada e não um valor gravado pela aplicação?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="views">
+  <h2>Views e materialized view</h2>
+  <div class="frente">Frente: Administração e Operação · <code>04_views.sql</code></div>
+
+  <div class="pedido"><b>Pedido:</b> "Views (oferta, vagas, histórico) e uma materialized view de indicadores com política de atualização justificada".</div>
+
+  <p>View comum não guarda dados: é uma consulta salva com nome, que roda de novo a cada SELECT. Materialized view guarda o resultado em disco. A leitura fica rápida, mas o conteúdo só muda com <code>REFRESH</code>.</p>
+
+  <h3>vw_oferta</h3>
+<pre><code class="language-sql">string_agg((ARRAY['dom','seg','ter','qua','qui','sex','sab'])[th.dia_semana]
+           || ' ' || to_char(th.horario_inicio, 'HH24:MI')
+           || '-' || to_char(th.horario_fim, 'HH24:MI')
+           || ' ' || s.codigo_sala,
+           ', ' ORDER BY th.dia_semana)     AS horarios
+FROM   tb_turma t
+...
+LEFT   JOIN tb_turma_horario th ON th.turma_id = t.turma_id
+LEFT   JOIN tb_sala s           ON s.sala_id   = th.sala_id</code></pre>
+  <div class="rotulo">Como funciona</div>
+  <div class="como"><p>Uma turma tem até 2 linhas de horário (ex.: segunda e quarta). O <code>string_agg</code> junta as duas num texto só, tipo <code>seg 19:00-20:50 A101, qua 19:00-20:50 A101</code>, e a view fica com uma linha por turma. O <code>LEFT JOIN</code> mantém na oferta a turma que ainda não tem horário cadastrado. Ela aparece com <code>horarios = NULL</code> em vez de sumir.</p></div>
+
+  <h3>vw_vagas</h3>
+<pre><code class="language-sql">count(m.matricula_aluno_id)              AS ocupadas,
+t.vagas - count(m.matricula_aluno_id)    AS livres,
+CASE WHEN count(m.matricula_aluno_id) &gt;= t.vagas
+     THEN 'LOTADA' ELSE 'COM VAGA' END   AS situacao
+...
+LEFT JOIN tb_matricula_aluno m ON m.turma_id = t.turma_id
+                              AND m.status   = 'MATRICULADO'</code></pre>
+  <div class="rotulo">Como funciona</div>
+  <div class="como"><ul>
+    <li>Conta só <code>MATRICULADO</code>, a mesma regra do gatilho. Trancado e cancelado liberam a vaga.</li>
+    <li>O filtro de status fica no <code>ON</code>, e não no <code>WHERE</code>. No <code>WHERE</code> ele eliminaria as turmas sem matrícula, e o LEFT JOIN viraria um JOIN comum.</li>
+    <li>Usamos <code>count(m.matricula_aluno_id)</code>, e não <code>count(*)</code>, porque o <code>count(*)</code> contaria 1 numa turma vazia (a linha da turma com NULL do lado da matrícula).</li>
+  </ul></div>
+
+  <h3>vw_historico</h3>
+<pre><code class="language-sql">CREATE OR REPLACE VIEW vw_historico WITH (security_invoker = true) AS
+SELECT a.aluno_id, a.matricula, a.nome AS aluno, ...
+       h.nota_a1, h.nota_a2, h.nota_a3, h.media_final, h.frequencia, h.situacao
+FROM   tb_historico h
+JOIN   tb_matricula_aluno m ON m.matricula_aluno_id = h.matricula_aluno_id
+JOIN   tb_aluno a           ON a.aluno_id           = m.aluno_id
+...</code></pre>
+  <div class="rotulo">Como funciona</div>
+  <div class="como"><p>Este é o detalhe mais importante das views. Por padrão, uma view lê as tabelas com a permissão do <b>dono</b> da view (o <code>bd2</code>), e o dono não passa pela RLS. Sem <code>security_invoker = true</code>, um aluno consultando a view veria o histórico de todo mundo. Com ela, a view lê as tabelas com a permissão de <b>quem consulta</b>, e a política de RLS da seção de segurança é aplicada. Precisa de PostgreSQL 15 ou mais novo.</p></div>
+
+  <h3>mv_indicadores e a política de atualização</h3>
+<pre><code class="language-sql">CREATE MATERIALIZED VIEW IF NOT EXISTS mv_indicadores AS
+SELECT pl.periodo_id, d.disciplina_id, ...
+       count(*)                                              AS matriculas,
+       count(*) FILTER (WHERE h.situacao = 'APROVADO')       AS aprovados,
+       round(avg(h.media_final), 2)                          AS media,
+       round(100.0 * count(*) FILTER (WHERE h.situacao = 'APROVADO')
+             / NULLIF(count(*) FILTER (WHERE h.situacao &lt;&gt; 'CURSANDO'), 0), 1) AS pct_aprovacao
+...
+GROUP  BY pl.periodo_id, pl.ano, pl.semestre, d.disciplina_id;
+
+-- REFRESH CONCURRENTLY exige um índice ÚNICO na materialized view
+CREATE UNIQUE INDEX IF NOT EXISTS uq_mv_indicadores
+    ON mv_indicadores (periodo_id, disciplina_id);
+
+-- Depois de cada fechamento de notas:
+REFRESH MATERIALIZED VIEW CONCURRENTLY academico.mv_indicadores;</code></pre>
+  <div class="rotulo">Como funciona</div>
+  <div class="como">
+    <ul>
+      <li>Uma linha por disciplina em cada período. O <code>FILTER</code> conta só as linhas que passam na condição, e por isso uma consulta só dá aprovados, reprovados por nota e reprovados por falta.</li>
+      <li>A taxa de aprovação ignora quem ainda está <code>CURSANDO</code>. No semestre corrente todos estão cursando, e o <code>NULLIF(..., 0)</code> transforma o divisor 0 em NULL. Assim o resultado sai NULL em vez de dar erro de divisão por zero.</li>
+      <li><b>Política:</b> os indicadores só mudam quando a secretaria fecha as notas (A1, A2 e P3). Recalcular a cada consulta ou por gatilho a cada INSERT seria trabalho à toa. A regra é rodar o REFRESH depois de cada fechamento.</li>
+      <li><b>Por que CONCURRENTLY:</b> o REFRESH normal bloqueia quem está lendo até terminar. O CONCURRENTLY monta o resultado novo ao lado e troca só as linhas que mudaram. É mais lento, mas ninguém fica esperando. Para saber qual linha mudou, ele precisa do índice único.</li>
+    </ul>
+  </div>
+
+  <div class="arguicao"><b>Pode cair na arguição</b>
+    <ul>
+      <li>O que acontece se tirar o <code>security_invoker</code> da vw_historico?</li>
+      <li>Por que não usar uma view comum para os indicadores? E por que não um REFRESH por gatilho?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="indices">
+  <h2>Índices e EXPLAIN</h2>
+  <div class="frente">Frente: Modelagem Física e Desempenho · <code>05_indices.sql</code> e <code>evidencias/</code></div>
+
+  <div class="pedido"><b>Pedido:</b> "Criação dos índices, incluindo ao menos um índice parcial" e "Evidências de EXPLAIN (ANALYZE, BUFFERS) antes e depois de cada índice, com o ganho medido".</div>
+
+  <h3>Os 4 índices</h3>
+  <div class="arquivo">05_indices.sql</div>
+<pre><code class="language-sql">-- 1) PARCIAL: só matrícula ativa ocupa vaga (consulta do gatilho e da vw_vagas)
+CREATE INDEX IF NOT EXISTS ix_tb_matricula_turma_ativa
+    ON tb_matricula_aluno (turma_id)
+    WHERE status = 'MATRICULADO';
+
+-- 2) FK do log: FK não ganha índice automático no PostgreSQL
+CREATE INDEX IF NOT EXISTS ix_tb_log_matricula_matricula
+    ON tb_log_matricula (matricula_aluno_id);
+
+-- 3) EXPRESSÃO: busca de aluno pelo começo do nome, sem ligar para maiúscula
+CREATE INDEX IF NOT EXISTS ix_tb_aluno_nome_lower
+    ON tb_aluno (lower(nome) text_pattern_ops);
+
+-- 4) Intervalo de datas: relatório de matrículas por dia/semana
+CREATE INDEX IF NOT EXISTS ix_tb_matricula_data
+    ON tb_matricula_aluno (data_matricula);</code></pre>
+
+  <div class="rotulo">Por que cada um</div>
+  <div class="grade">
+    <div class="card"><h4>Parcial na turma</h4><p>O gatilho roda essa contagem em <b>todo</b> INSERT de matrícula. Trancadas e canceladas nunca são contadas, então ficam fora do índice. O índice só é usado quando a consulta também filtra <code>status = 'MATRICULADO'</code>.</p></div>
+    <div class="card"><h4>FK do log</h4><p>Serve para "o que aconteceu com esta matrícula?" e para o <code>ON DELETE RESTRICT</code>: antes de apagar uma matrícula, o banco procura log apontando para ela. O log só cresce.</p></div>
+    <div class="card"><h4>lower(nome)</h4><p>A consulta compara <code>lower(nome)</code>, então o índice tem que guardar <code>lower(nome)</code>. O <code>text_pattern_ops</code> compara caractere por caractere e serve para <code>LIKE 'ana%'</code>. Com <code>'%ana'</code> não serve.</p></div>
+    <div class="card"><h4>Data</h4><p>A B-tree guarda os valores em ordem, então serve para intervalo (<code>&gt;=</code>, <code>&lt;</code>, <code>BETWEEN</code>), e não só para igualdade.</p></div>
+  </div>
+
+  <h3>Como medimos</h3>
+  <div class="arquivo">evidencias/explain_indices.sql (resumo)</div>
+<pre><code class="language-sql">BEGIN;
+-- massa extra: 100 mil alunos, 300 mil matrículas, 300 mil logs
+INSERT INTO tb_aluno ... SELECT ... FROM generate_series(1, 100000) g;
+...
+ANALYZE;
+
+DROP INDEX ix_tb_matricula_turma_ativa;
+EXPLAIN (ANALYZE, BUFFERS) SELECT count(*) FROM tb_matricula_aluno
+WHERE turma_id = :turma AND status = 'MATRICULADO';      -- ANTES
+
+CREATE INDEX ix_tb_matricula_turma_ativa ...;
+EXPLAIN (ANALYZE, BUFFERS) SELECT ...;                   -- DEPOIS
+...
+ROLLBACK;   -- a base volta a ser a original</code></pre>
+
+  <div class="rotulo">Como funciona</div>
+  <div class="como">
+    <ul>
+      <li>Com só 440 matrículas a tabela cabe em poucas páginas, e o planejador prefere ler tudo (Seq Scan). Isso está <b>certo</b>: com pouca linha, o índice não ajuda. Para o índice fazer diferença, o script coloca centenas de milhares de linhas dentro de uma transação, mede, e dá <code>ROLLBACK</code> no fim. Nada fica gravado.</li>
+      <li><code>ANALYZE</code> dentro do EXPLAIN executa a consulta de verdade e mostra o tempo real. <code>BUFFERS</code> mostra quantas páginas de 8 kB foram lidas. As páginas variam menos que o tempo entre uma execução e outra, por isso usamos elas como prova principal.</li>
+      <li>A saída completa está em <code>evidencias/explain_resultado.txt</code>.</li>
+    </ul>
+  </div>
+
+  <h3>Resultado medido</h3>
+  <div class="tabela">
+  <table>
+    <thead><tr><th>Índice</th><th>Plano antes</th><th>Plano depois</th><th>Tempo</th><th>Páginas lidas</th></tr></thead>
+    <tbody>
+      <tr><td><code>ix_tb_matricula_turma_ativa</code></td><td>Parallel Seq Scan</td><td>Bitmap Index Scan</td><td class="num">11,4 → 0,20 ms</td><td class="num">2.210 → 153</td></tr>
+      <tr><td><code>ix_tb_log_matricula_matricula</code></td><td>Parallel Seq Scan</td><td>Index Scan</td><td class="num">11,8 → 0,04 ms</td><td class="num">4.626 → 4</td></tr>
+      <tr><td><code>ix_tb_aluno_nome_lower</code></td><td>Seq Scan</td><td>Bitmap Index Scan</td><td class="num">26,4 → 0,59 ms</td><td class="num">1.438 → 254</td></tr>
+      <tr><td><code>ix_tb_matricula_data</code></td><td>Parallel Seq Scan</td><td>Bitmap Index Scan</td><td class="num">12,3 → 0,49 ms</td><td class="num">2.210 → 503</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="rotulo">Tempo antes e depois (ms, mesma escala)</div>
+  <div class="barras" role="img" aria-label="Tempo antes e depois de cada índice">
+    <div class="barra-item"><div class="nome">turma_ativa (parcial)</div>
+      <div class="barra-linha"><span>antes</span><div class="barra antes" style="width:43%"></div><span>11,4 ms</span></div>
+      <div class="barra-linha"><span>depois</span><div class="barra depois" style="width:1%"></div><span>0,20 ms</span></div></div>
+    <div class="barra-item"><div class="nome">log_matricula</div>
+      <div class="barra-linha"><span>antes</span><div class="barra antes" style="width:45%"></div><span>11,8 ms</span></div>
+      <div class="barra-linha"><span>depois</span><div class="barra depois" style="width:.6%"></div><span>0,04 ms</span></div></div>
+    <div class="barra-item"><div class="nome">aluno_nome_lower</div>
+      <div class="barra-linha"><span>antes</span><div class="barra antes" style="width:100%"></div><span>26,4 ms</span></div>
+      <div class="barra-linha"><span>depois</span><div class="barra depois" style="width:2.2%"></div><span>0,59 ms</span></div></div>
+    <div class="barra-item"><div class="nome">matricula_data</div>
+      <div class="barra-linha"><span>antes</span><div class="barra antes" style="width:47%"></div><span>12,3 ms</span></div>
+      <div class="barra-linha"><span>depois</span><div class="barra depois" style="width:1.9%"></div><span>0,49 ms</span></div></div>
+  </div>
+
+  <p>O índice parcial ficou só uns 7% menor que um índice comum (1.904 kB contra 2.040 kB), porque na massa de teste só 10% das matrículas não estão <code>MATRICULADO</code>. Numa base com vários semestres encerrados a diferença seria maior. O ganho principal dele é na busca.</p>
+
+  <div class="arguicao"><b>Pode cair na arguição</b>
+    <ul>
+      <li>Por que, na base pequena, o EXPLAIN mostra Seq Scan mesmo com o índice criado?</li>
+      <li>Um índice comum em <code>nome</code> serviria para <code>WHERE lower(nome) LIKE 'ana%'</code>? Por quê?</li>
+      <li>Quando o índice parcial NÃO é usado?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="concorrencia">
+  <h2>Concorrência: a disputa pela última vaga</h2>
+  <div class="frente">Frente: Transações e Concorrência · <code>concorrencia/</code></div>
+
+  <div class="pedido"><b>Pedido:</b> "Reprodução da anomalia de concorrência na disputa pela última vaga de uma turma; implementação de duas correções distintas, uma por bloqueio explícito, outra por nível de isolamento; comparação fundamentada entre as duas abordagens (custo, contenção, necessidade de retentativa)."</div>
+
+  <p><code>00_preparar.sql</code> cria a turma <code>BD2-DEMO</code> com <b>1 vaga</b> e zera as matrículas dela. Dois alunos sem matrícula (RA 26000101 e 26000102) tentam entrar ao mesmo tempo, cada um num terminal. Cada script segura a transação aberta por 5 segundos com <code>pg_sleep(5)</code>. Essa é a janela em que a outra sessão entra.</p>
+
+  <h3>1. A anomalia (READ COMMITTED, o padrão)</h3>
+  <div class="arquivo">concorrencia/01_anomalia.sql</div>
+<pre><code class="language-sql">BEGIN;   -- READ COMMITTED (padrão)
+
+INSERT INTO tb_matricula_aluno (aluno_id, turma_id)
+SELECT a.aluno_id, t.turma_id
+FROM   tb_aluno a, tb_turma t
+WHERE  a.matricula = :'aluno' AND t.codigo = 'BD2-DEMO';
+
+SELECT pg_sleep(5);
+COMMIT;</code></pre>
+
+  <div class="linha-tempo" role="table" aria-label="Linha do tempo da anomalia">
+    <div class="cab">t</div><div class="cab">Sessão A (aluno 101)</div><div class="cab">Sessão B (aluno 102)</div>
+    <div class="t">t0</div><div>INSERT → gatilho conta <b>0</b> ocupadas → ok</div><div></div>
+    <div class="t">t1</div><div></div><div>INSERT → gatilho conta <b>0</b> ocupadas → ok<br><small>(o INSERT de A ainda não tem COMMIT, então B não enxerga)</small></div>
+    <div class="t">t5</div><div>COMMIT</div><div></div>
+    <div class="t fim">t6</div><div class="fim"></div><div class="fim ruim">COMMIT → 2 alunos para 1 vaga</div>
+  </div>
+
+  <div class="rotulo">Por que acontece</div>
+  <div class="como"><p>O gatilho faz "ler, decidir e gravar": conta as vagas e, se tiver, deixa gravar. Em READ COMMITTED cada comando só enxerga o que já tem COMMIT. A conta de B acontece antes do COMMIT de A, então os dois veem a vaga livre. Contar linhas com SELECT não trava ninguém, e os dois INSERTs são em linhas diferentes. Nada faz B esperar.</p></div>
+
+  <h3>2. Correção por bloqueio explícito: FOR UPDATE</h3>
+  <div class="arquivo">concorrencia/02_bloqueio.sql</div>
+<pre><code class="language-sql">BEGIN;   -- continua READ COMMITTED
+
+SELECT turma_id, vagas
+FROM   tb_turma
+WHERE  codigo = 'BD2-DEMO'
+FOR UPDATE;            -- trava a linha da turma até o COMMIT
+
+INSERT INTO tb_matricula_aluno (aluno_id, turma_id) ...;
+SELECT pg_sleep(5);
+COMMIT;</code></pre>
+
+  <div class="linha-tempo" role="table" aria-label="Linha do tempo com FOR UPDATE">
+    <div class="cab">t</div><div class="cab">Sessão A</div><div class="cab">Sessão B</div>
+    <div class="t">t0</div><div>FOR UPDATE na BD2-DEMO → pega a trava<br>INSERT, conta 0 → ok</div><div></div>
+    <div class="t">t1</div><div></div><div>FOR UPDATE na BD2-DEMO → <b>espera</b></div>
+    <div class="t">t5</div><div>COMMIT (solta a trava)</div><div></div>
+    <div class="t fim">t5</div><div class="fim"></div><div class="fim bom">pega a trava → INSERT, conta 1 → "sem vagas"</div>
+  </div>
+
+  <div class="rotulo">Como funciona</div>
+  <div class="como"><ul>
+    <li>O <code>FOR UPDATE</code> trava só a <b>linha</b> da turma. Quem pedir a mesma trava espera, e matrículas na mesma turma passam a acontecer uma de cada vez. Matrículas em outras turmas não esperam.</li>
+    <li>Quando B finalmente roda o INSERT, a conta dá 1. Em READ COMMITTED cada comando tira uma foto nova dos dados, e o INSERT de B começa depois do COMMIT de A.</li>
+    <li>Ficou no script da sessão para dar para comparar com o 01 sem mexer no gatilho. Num sistema de verdade, o <code>FOR UPDATE</code> iria dentro do <code>fn_tb_valida_vaga</code>, para nenhum programa esquecer de travar.</li>
+  </ul></div>
+
+  <h3>3. Correção por nível de isolamento: SERIALIZABLE</h3>
+  <div class="arquivo">concorrencia/03_serializable.sql</div>
+<pre><code class="language-sql">BEGIN ISOLATION LEVEL SERIALIZABLE;
+
+INSERT INTO tb_matricula_aluno (aluno_id, turma_id) ...;
+SELECT pg_sleep(5);
+COMMIT;
+-- a sessão que perde recebe:
+-- ERROR: could not serialize access due to read/write dependencies
+--        among transactions   (SQLSTATE 40001)</code></pre>
+
+  <div class="rotulo">Como funciona</div>
+  <div class="como"><ul>
+    <li>O PostgreSQL garante que o resultado final é igual ao de <b>alguma</b> ordem em fila (A depois B, ou B depois A). Ele não trava a leitura: anota o que cada transação leu. Se A leu algo que B escreveu e B leu algo que A escreveu, cancela uma das duas.</li>
+    <li>Em fila, a segunda veria a primeira e o gatilho recusaria. Como as duas passaram juntas, não existe fila que explique o resultado, e uma é cancelada com 40001.</li>
+    <li>A sessão cancelada precisa ser <b>repetida</b> (retentativa). Na segunda tentativa ela já vê a turma cheia e recebe "sem vagas".</li>
+    <li><b>Por que não REPEATABLE READ:</b> nele cada transação usa a foto do começo. As duas continuam vendo 0 ocupadas e inserem linhas diferentes. Como não há conflito de escrita na mesma linha, as duas passam (anomalia <i>write skew</i>). Testamos, e deu 2 alunos para 1 vaga.</li>
+  </ul></div>
+
+  <h3>Comparação e escolha do grupo</h3>
+  <div class="tabela">
+  <table>
+    <thead><tr><th></th><th>FOR UPDATE</th><th>SERIALIZABLE</th></tr></thead>
+    <tbody>
+      <tr><td><b>O que faz</b></td><td>trava a linha da turma</td><td>não trava; cancela uma transação no conflito</td></tr>
+      <tr><td><b>Quem perde</b></td><td>espera e depois recebe "sem vagas"</td><td>recebe erro 40001 na hora</td></tr>
+      <tr><td><b>Retentativa</b></td><td>não precisa</td><td>precisa: capturar o 40001 e repetir</td></tr>
+      <tr><td><b>Contenção</b></td><td>fila só na turma disputada</td><td>ninguém espera, mas no pico muitas transações são canceladas e refeitas</td></tr>
+      <tr><td><b>Custo</b></td><td>um lock de linha por matrícula</td><td>o banco anota tudo que cada transação lê</td></tr>
+      <tr><td><b>Falso positivo</b></td><td>não tem</td><td>pode cancelar quem nem disputava a mesma vaga se a leitura não usar índice</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="como">
+    <p><b>Escolha para um sistema de verdade:</b> FOR UPDATE dentro do gatilho. A disputa é sempre pela mesma coisa (a linha da turma) e já sabemos qual linha travar. Ninguém precisa escrever laço de retentativa, e o aluno que perde recebe direto a mensagem certa. O SERIALIZABLE é melhor quando a regra envolve várias tabelas e não dá para saber de antemão o que travar.</p>
+    <p><b>Teste extra do falso positivo:</b> duas sessões SERIALIZABLE ao mesmo tempo, uma na BD2-DEMO e outra na RED-N1. As duas deram COMMIT, porque a contagem do gatilho usa o índice parcial, e aí o banco anota só as páginas do índice daquela turma. Aqui o índice da frente de desempenho ajuda também na concorrência.</p>
+    <p>O gatilho do projeto ficou <b>sem</b> FOR UPDATE de propósito. Com a trava dentro dele, o cenário 01 não conseguiria mais mostrar a anomalia.</p>
+  </div>
+
+  <div class="arguicao"><b>Pode cair na arguição</b>
+    <ul>
+      <li>Por que REPEATABLE READ não resolve? Qual o nome da anomalia?</li>
+      <li>O que o programa precisa fazer quando recebe o erro 40001?</li>
+      <li>O FOR UPDATE trava a tabela inteira?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="seguranca">
+  <h2>Segurança: papéis, GRANT/REVOKE e RLS</h2>
+  <div class="frente">Frente: Administração e Operação · <code>06_seguranca.sql</code></div>
+
+  <div class="pedido"><b>Pedido:</b> "Papéis de acesso (aluno, secretaria, coordenacao) com GRANT/REVOKE e row-level security" e "RLS impedindo um aluno de ver o histórico de outro".</div>
+
+  <h3>Papéis e usuários</h3>
+<pre><code class="language-sql">CREATE ROLE aluno       NOLOGIN;
+CREATE ROLE secretaria  NOLOGIN;
+CREATE ROLE coordenacao NOLOGIN;
+
+CREATE ROLE aluno_26000001      LOGIN PASSWORD 'aluno'       IN ROLE aluno;
+CREATE ROLE usuario_secretaria  LOGIN PASSWORD 'secretaria'  IN ROLE secretaria;
+...</code></pre>
+  <div class="como"><p>Os três papéis são <b>grupos</b> (<code>NOLOGIN</code>): ninguém entra com eles direto. As permissões vão para o grupo, e cada usuário de login entra num grupo. O nome do usuário de aluno é <code>aluno_</code> + o RA, e é assim que o banco descobre quem está conectado. No script, cada CREATE ROLE fica dentro de um <code>DO</code> que ignora o erro de "já existe", porque CREATE ROLE não tem IF NOT EXISTS.</p></div>
+
+  <h3>Primeiro tira tudo, depois dá só o necessário</h3>
+<pre><code class="language-sql">REVOKE ALL ON SCHEMA academico FROM PUBLIC;
+REVOKE ALL ON ALL TABLES IN SCHEMA academico FROM PUBLIC, aluno, secretaria, coordenacao;
+GRANT USAGE ON SCHEMA academico TO aluno, secretaria, coordenacao;
+
+-- aluno: catálogo, as próprias linhas (filtradas pela RLS) e as views
+GRANT SELECT ON tb_curso, tb_disciplinas, tb_turma, tb_turma_horario, ... TO aluno;
+GRANT SELECT ON tb_aluno, tb_matricula_aluno, tb_historico TO aluno;
+GRANT SELECT ON vw_oferta, vw_vagas, vw_historico TO aluno;
+
+-- secretaria: lê tudo, escreve aluno, matrícula, nota e log (sem DELETE)
+GRANT SELECT ON ALL TABLES IN SCHEMA academico TO secretaria;
+GRANT INSERT, UPDATE ON tb_aluno, tb_matricula_aluno, tb_historico TO secretaria;
+GRANT INSERT ON tb_log_matricula TO secretaria;
+
+-- coordenacao: lê tudo e monta a oferta
+GRANT INSERT, UPDATE, DELETE ON tb_turma, tb_turma_horario, ... TO coordenacao;</code></pre>
+  <div class="rotulo">Como funciona</div>
+  <div class="como"><ul>
+    <li><code>PUBLIC</code> é "todo mundo que conecta". Tirando dele, um usuário novo não enxerga nada até receber GRANT por algum papel. Isso é o princípio do menor privilégio.</li>
+    <li><code>USAGE</code> no schema é poder "entrar na pasta". Sem ele, nem o GRANT na tabela adianta.</li>
+    <li>O aluno não recebe <code>tb_professor</code> (tem e-mail), o log nem a <code>mv_indicadores</code>.</li>
+    <li>A secretaria não tem DELETE em matrícula: matrícula se cancela mudando o status, para não perder o histórico e o log.</li>
+    <li>O GRANT decide <b>quais tabelas</b> cada um pode usar e <b>o que pode fazer</b> nelas. A RLS decide <b>quais linhas</b>.</li>
+  </ul></div>
+
+  <h3>Quem está conectado: fn_aluno_logado()</h3>
+<pre><code class="language-sql">CREATE OR REPLACE FUNCTION fn_aluno_logado() RETURNS integer
+LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = academico, pg_temp
+AS $$
+    SELECT aluno_id FROM tb_aluno WHERE 'aluno_' || matricula = session_user;
+$$;</code></pre>
+  <div class="rotulo">Como funciona</div>
+  <div class="como"><ul>
+    <li><code>SECURITY DEFINER</code>: a função roda com a permissão do <b>dono</b> (bd2). Ela precisa ler <code>tb_aluno</code> sem passar pela RLS. Se a política de <code>tb_aluno</code> fizesse essa consulta direto, a política chamaria ela mesma.</li>
+    <li><code>session_user</code>, e não <code>current_user</code>: dentro de uma função SECURITY DEFINER, o <code>current_user</code> vira o dono (bd2). O <code>session_user</code> continua sendo quem fez o login.</li>
+    <li><code>SET search_path</code> fixo: sem ele, alguém poderia criar uma <code>tb_aluno</code> falsa em outro schema e enganar a função. É a recomendação da documentação para toda função SECURITY DEFINER.</li>
+  </ul></div>
+
+  <h3>As políticas de RLS</h3>
+<pre><code class="language-sql">ALTER TABLE tb_historico ENABLE ROW LEVEL SECURITY;
+
+-- tb_historico não tem aluno_id: a política sobe pela matrícula
+CREATE POLICY pol_historico_proprio ON tb_historico
+    FOR SELECT TO aluno
+    USING (EXISTS (SELECT 1
+                   FROM   tb_matricula_aluno m
+                   WHERE  m.matricula_aluno_id = tb_historico.matricula_aluno_id
+                     AND  m.aluno_id = fn_aluno_logado()));
+
+-- secretaria e coordenação veem todas as linhas
+CREATE POLICY pol_historico_equipe ON tb_historico
+    FOR ALL TO secretaria, coordenacao USING (true) WITH CHECK (true);</code></pre>
+  <div class="rotulo">Como funciona</div>
+  <div class="como"><ul>
+    <li>Com RLS ligada, todo comando na tabela ganha um filtro extra, o <code>USING</code> da política. Quem não tem nenhuma política que libere vê zero linhas. Não dá erro, só volta vazio.</li>
+    <li>O mesmo vale para <code>tb_aluno</code> e <code>tb_matricula_aluno</code>, com <code>aluno_id = fn_aluno_logado()</code>.</li>
+    <li>O dono da tabela e o superusuário não passam pela RLS. Por isso conectado como <code>bd2</code> aparecem as 440 linhas.</li>
+    <li>A <code>vw_vagas</code> não é security_invoker: o aluno vê <b>quantas</b> vagas estão ocupadas em todas as turmas, mas não <b>quem</b> está matriculado.</li>
+  </ul></div>
+
+  <div class="rotulo">Resultado esperado na demonstração</div>
+  <div class="tabela">
+  <table>
+    <thead><tr><th>Conectado como</th><th>Consulta</th><th>Resultado</th></tr></thead>
+    <tbody>
+      <tr><td><code>bd2</code> (dono)</td><td><code>SELECT count(*) FROM academico.vw_historico</code></td><td>440 linhas</td></tr>
+      <tr><td><code>aluno_26000001</code></td><td>a mesma</td><td>só as linhas dele</td></tr>
+      <tr><td><code>aluno_26000001</code></td><td><code>... WHERE matricula = '26000002'</code></td><td>0 linhas</td></tr>
+      <tr><td><code>aluno_26000001</code></td><td><code>SELECT * FROM academico.tb_professor</code></td><td><code>permission denied</code></td></tr>
+      <tr><td><code>usuario_secretaria</code></td><td><code>SELECT count(*) FROM academico.tb_historico</code></td><td>440 linhas</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="arguicao"><b>Pode cair na arguição</b>
+    <ul>
+      <li>Qual a diferença entre o que o GRANT controla e o que a RLS controla?</li>
+      <li>Por que <code>session_user</code> e não <code>current_user</code> na função?</li>
+      <li>Por que <code>SET ROLE aluno_26000001</code> não serve para testar a RLS e <code>SET SESSION AUTHORIZATION</code> serve?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="backup">
+  <h2>Backup e restauração</h2>
+  <div class="frente">Frente: Administração e Operação · <code>operacao/</code></div>
+
+  <div class="pedido"><b>Pedido:</b> "Procedimento de backup e restauração, documentado e reproduzível do zero". Na demonstração: "uma restauração de backup ao vivo".</div>
+
+  <h3>Backup</h3>
+  <div class="arquivo">operacao/backup.sh</div>
+<pre><code class="language-bash">DATA=$(date +%Y%m%d_%H%M)
+docker compose exec -T postgres pg_dumpall -U bd2 --roles-only &gt; "backups/papeis_$DATA.sql"
+docker compose exec -T postgres pg_dump -U bd2 -d matricula -Fc &gt; "backups/matricula_$DATA.dump"</code></pre>
+  <div class="rotulo">Como funciona</div>
+  <div class="como"><ul>
+    <li><b>Por que dois arquivos:</b> o <code>pg_dump</code> salva <b>um banco</b>, e os papéis (aluno, secretaria...) não pertencem a um banco, pertencem ao servidor inteiro. Sem o <code>papeis.sql</code>, a restauração num servidor novo daria erro em todo GRANT e em toda POLICY, porque os papéis citados não existiriam.</li>
+    <li><code>-Fc</code> (formato custom): sai compactado, e o <code>pg_restore</code> recria tudo na ordem certa. Também dá para escolher só uma tabela. Um <code>.sql</code> puro só dá para rodar inteiro.</li>
+    <li>A pasta <code>backups/</code> está no <code>.gitignore</code>: backup não vai para o Git.</li>
+  </ul></div>
+
+  <h3>Restauração</h3>
+  <div class="arquivo">operacao/restaurar.sh</div>
+<pre><code class="language-bash">DUMP=${1:-$(ls -t backups/matricula_*.dump | head -1)}   # o mais recente
+
+docker compose exec -T postgres psql -U bd2 -d postgres -q &lt; "$PAPEIS"
+docker compose exec -T postgres dropdb -U bd2 --if-exists --force matricula
+docker compose exec -T postgres createdb -U bd2 matricula
+docker compose exec -T postgres pg_restore -U bd2 -d matricula &lt; "$DUMP"
+# e no fim mostra as contagens: alunos, turmas, matrículas, históricos, políticas</code></pre>
+  <div class="rotulo">Como funciona</div>
+  <ol class="passos">
+    <li>Recria os papéis. No mesmo servidor eles já existem, e o psql só avisa "already exists" (o script filtra esse aviso). Num servidor novo, é aqui que eles são criados.</li>
+    <li><code>dropdb --force</code> derruba as conexões abertas (o DBeaver, por exemplo) e apaga o banco.</li>
+    <li><code>createdb</code> cria o banco vazio.</li>
+    <li><code>pg_restore</code> recria, na ordem certa: extensão, tipos, tabelas, dados, índices, FKs, gatilho, views, RLS, GRANTs e o conteúdo da materialized view.</li>
+    <li>Mostra as contagens para comparar com as de antes.</li>
+  </ol>
+  <div class="como"><p>Testamos também num servidor novo, vazio, sem os papéis: a restauração funcionou e a RLS continuou valendo.</p></div>
+
+  <div class="arguicao"><b>Pode cair na arguição</b>
+    <ul>
+      <li>O que o <code>pg_dump</code> não salva? Por que o <code>pg_dumpall --roles-only</code>?</li>
+      <li>Qual a vantagem do formato custom sobre o <code>.sql</code> puro?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="demo">
+  <h2>Roteiro da demonstração (~9 min)</h2>
+  <div class="frente">O enunciado exige no mínimo estes 5 itens, rodando na hora</div>
+
+  <ol class="passos">
+    <li><b>Integridade:</b> rodar <code>07_testes_integridade.sql</code> e mostrar os 10 "OK".<br><code>docker compose exec -T postgres psql -U bd2 -d matricula &lt; 07_testes_integridade.sql</code></li>
+    <li><b>Concorrência:</b> <code>00_preparar</code> → os dois terminais com <code>01_anomalia</code> → <code>04_conferir</code> (2 de 1). Depois repetir com <code>02_bloqueio</code> e <code>03_serializable</code>.</li>
+    <li><b>EXPLAIN ANALYZE:</b> mostrar um trecho de <code>evidencias/explain_resultado.txt</code> ou rodar um EXPLAIN ao vivo e explicar o plano.</li>
+    <li><b>RLS:</b> entrar como aluno e consultar o histórico.<br><code>docker compose exec postgres psql -h localhost -U aluno_26000001 -d matricula</code> (senha <code>aluno</code>)</li>
+    <li><b>Backup ao vivo:</b> <code>sh operacao/backup.sh</code> → <code>DROP TABLE academico.tb_historico CASCADE;</code> → <code>sh operacao/restaurar.sh</code> → contagens de volta.</li>
+  </ol>
+  <div class="como"><p>Antes do dia: <code>docker compose down -v</code> e <code>up -d</code> para começar com o banco limpo, e conferir no log que os scripts 01 a 07 rodaram.</p></div>
+</section>
+
+<!-- ============================================================ -->
+<section id="pendente">
+  <h2>O que ainda falta</h2>
+  <div class="frente">Para o grupo resolver antes de juntar na main</div>
+  <div class="grade">
+    <div class="card"><h4>Confirmar as frentes</h4><p>No <code>AUTORES.md</code>, André ficou com Desempenho e Luiz com Concorrência. Confirmem ou troquem.</p></div>
+    <div class="card"><h4>Commits de cada um</h4><p>O enunciado penaliza trabalho concentrado numa só pessoa (até −1,0). Cada um revisa a sua frente e faz os seus commits nesta branch.</p></div>
+    <div class="card"><h4>Bônus (até +0,5)</h4><p>Particionar <code>tb_historico</code> por ano, ou um campo JSONB com índice GIN. Opcional.</p></div>
+    <div class="card"><h4>Estudar as outras frentes</h4><p>A arguição é cruzada e sem IA. Usem as perguntas em amarelo desta página para treinar.</p></div>
+  </div>
+</section>
+
+<footer>
+  Projeto de Banco de Dados II (CCO072) · IESB 2026/2 · André Matos, Luiz Felipe e Pedro Campos.
+  Código em <a href="https://github.com/plc232007/iesb-bd2-matricula-academica/tree/feature/marco2">github.com/plc232007/iesb-bd2-matricula-academica</a> (branch <code>feature/marco2</code>).
+</footer>
+</main>
+</div>
+
+<script>
+  if (window.hljs) { hljs.highlightAll(); }
+
+  (function () {
+    var raiz = document.documentElement;
+    try {
+      var salvo = localStorage.getItem('tema');
+      if (salvo) raiz.setAttribute('data-theme', salvo);
+    } catch (e) {}
+    document.getElementById('tema').addEventListener('click', function () {
+      var atual = raiz.getAttribute('data-theme') ||
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      var novo = atual === 'dark' ? 'light' : 'dark';
+      raiz.setAttribute('data-theme', novo);
+      try { localStorage.setItem('tema', novo); } catch (e) {}
+    });
+  })();
+
+  (function () {
+    var links = document.querySelectorAll('nav.toc a');
+    var mapa = {};
+    links.forEach(function (a) { mapa[a.getAttribute('href').slice(1)] = a; });
+    var obs = new IntersectionObserver(function (itens) {
+      itens.forEach(function (i) {
+        if (i.isIntersecting) {
+          links.forEach(function (a) { a.classList.remove('ativo'); });
+          var a = mapa[i.target.id];
+          if (a) a.classList.add('ativo');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    document.querySelectorAll('section[id]').forEach(function (s) { obs.observe(s); });
+  })();
+</script>
+</body>
+</html>
