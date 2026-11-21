@@ -1,0 +1,42 @@
+# Ambiente do projeto, adaptado do ambiente aluno do professor (PostgreSQL 16 + pgAdmin).
+#
+#   docker compose up -d      sobe e, na PRIMEIRA vez, cria o banco rodando os scripts
+#   docker compose down       desliga e mantém os dados
+#   docker compose down -v    desliga e apaga tudo (o próximo "up" cria do zero de novo)
+#
+# A raiz do projeto é montada em /docker-entrypoint-initdb.d. Na primeira
+# subida, a imagem do postgres roda os .sql dessa pasta em ordem alfabética
+# (01_ddl, 02_carga, ..., 07_testes) e ignora o resto (README, pastas).
+# As pastas concorrencia/, evidencias/ e operacao/ NÃO rodam sozinhas.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: bd2
+      POSTGRES_PASSWORD: bd2
+      POSTGRES_DB: matricula
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - bd2_dados:/var/lib/postgresql/data
+      - ./:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bd2 -d matricula"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@iesb.br
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "${PGADMIN_PORT:-8080}:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  bd2_dados:
