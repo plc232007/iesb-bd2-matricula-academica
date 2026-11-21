@@ -1,0 +1,186 @@
+SET
+Timing is off.
+BEGIN
+ALTER TABLE
+INSERT 0 2000
+INSERT 0 100000
+INSERT 0 300000
+INSERT 0 300000
+ANALYZE
+ANALYZE
+ANALYZE
+ANALYZE
+ alunos | turmas | matriculas |  logs  
+--------+--------+------------+--------
+ 100110 |   2014 |     300440 | 300440
+(1 row)
+
+=====================================================================
+1) ix_tb_matricula_turma_ativa (PARCIAL) - vagas ocupadas de uma turma
+=====================================================================
+DROP INDEX
+--- ANTES
+                                                                 QUERY PLAN                                                                 
+--------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=5861.25..5861.26 rows=1 width=8) (actual time=9.092..11.409 rows=1 loops=1)
+   Buffers: shared hit=2210
+   ->  Gather  (cost=5861.14..5861.25 rows=1 width=8) (actual time=9.042..11.405 rows=2 loops=1)
+         Workers Planned: 1
+         Workers Launched: 1
+         Buffers: shared hit=2210
+         ->  Partial Aggregate  (cost=4861.14..4861.15 rows=1 width=8) (actual time=7.694..7.695 rows=1 loops=2)
+               Buffers: shared hit=2210
+               ->  Parallel Seq Scan on tb_matricula_aluno  (cost=0.00..4860.94 rows=79 width=0) (actual time=0.098..7.686 rows=75 loops=2)
+                     Filter: ((turma_id = 1019) AND (status = 'MATRICULADO'::status_mat_t))
+                     Rows Removed by Filter: 150145
+                     Buffers: shared hit=2210
+ Planning:
+   Buffers: shared hit=14
+ Planning Time: 0.076 ms
+ Execution Time: 11.422 ms
+(16 rows)
+
+CREATE INDEX
+ANALYZE
+--- DEPOIS
+                                                                  QUERY PLAN                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=436.12..436.13 rows=1 width=8) (actual time=0.181..0.182 rows=1 loops=1)
+   Buffers: shared hit=150 read=3
+   ->  Bitmap Heap Scan on tb_matricula_aluno  (cost=5.46..435.79 rows=134 width=0) (actual time=0.055..0.172 rows=150 loops=1)
+         Recheck Cond: ((turma_id = 1019) AND (status = 'MATRICULADO'::status_mat_t))
+         Heap Blocks: exact=150
+         Buffers: shared hit=150 read=3
+         ->  Bitmap Index Scan on ix_tb_matricula_turma_ativa  (cost=0.00..5.43 rows=134 width=0) (actual time=0.039..0.039 rows=150 loops=1)
+               Index Cond: (turma_id = 1019)
+               Buffers: shared read=3
+ Planning:
+   Buffers: shared hit=12 read=1
+ Planning Time: 0.222 ms
+ Execution Time: 0.198 ms
+(13 rows)
+
+--- Tamanho do índice parcial comparado com um índice comum na mesma coluna
+CREATE INDEX
+ parcial |  comum  
+---------+---------
+ 1904 kB | 2040 kB
+(1 row)
+
+DROP INDEX
+=====================================================================
+2) ix_tb_log_matricula_matricula - log de uma matrícula
+=====================================================================
+DROP INDEX
+--- ANTES
+                                                          QUERY PLAN                                                          
+------------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..7190.89 rows=1 width=143) (actual time=5.282..11.788 rows=1 loops=1)
+   Workers Planned: 2
+   Workers Launched: 2
+   Buffers: shared hit=4626
+   ->  Parallel Seq Scan on tb_log_matricula  (cost=0.00..6190.79 rows=1 width=143) (actual time=5.715..6.888 rows=0 loops=3)
+         Filter: (matricula_aluno_id = 150227)
+         Rows Removed by Filter: 100146
+         Buffers: shared hit=4626
+ Planning:
+   Buffers: shared hit=16
+ Planning Time: 0.060 ms
+ Execution Time: 11.797 ms
+(12 rows)
+
+CREATE INDEX
+ANALYZE
+--- DEPOIS
+                                                                    QUERY PLAN                                                                    
+--------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using ix_tb_log_matricula_matricula on tb_log_matricula  (cost=0.42..8.44 rows=1 width=142) (actual time=0.026..0.027 rows=1 loops=1)
+   Index Cond: (matricula_aluno_id = 150227)
+   Buffers: shared hit=1 read=3
+ Planning:
+   Buffers: shared hit=23 read=1
+ Planning Time: 0.119 ms
+ Execution Time: 0.041 ms
+(7 rows)
+
+=====================================================================
+3) ix_tb_aluno_nome_lower (EXPRESSÃO) - busca pelo começo do nome
+=====================================================================
+DROP INDEX
+--- ANTES
+                                                QUERY PLAN                                                 
+-----------------------------------------------------------------------------------------------------------
+ Seq Scan on tb_aluno  (cost=0.00..2939.65 rows=501 width=34) (actual time=0.016..26.385 rows=255 loops=1)
+   Filter: (lower((nome)::text) ~~ 'ana almeida%'::text)
+   Rows Removed by Filter: 99855
+   Buffers: shared hit=1438
+ Planning:
+   Buffers: shared hit=7
+ Planning Time: 0.040 ms
+ Execution Time: 26.400 ms
+(8 rows)
+
+CREATE INDEX
+ANALYZE
+--- DEPOIS
+                                                             QUERY PLAN                                                             
+------------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on tb_aluno  (cost=18.10..1393.22 rows=10 width=34) (actual time=0.080..0.564 rows=255 loops=1)
+   Filter: (lower((nome)::text) ~~ 'ana almeida%'::text)
+   Heap Blocks: exact=252
+   Buffers: shared hit=252 read=2
+   ->  Bitmap Index Scan on ix_tb_aluno_nome_lower  (cost=0.00..18.09 rows=980 width=0) (actual time=0.042..0.042 rows=255 loops=1)
+         Index Cond: ((lower((nome)::text) ~>=~ 'ana almeida'::text) AND (lower((nome)::text) ~<~ 'ana almeidb'::text))
+         Buffers: shared read=2
+ Planning:
+   Buffers: shared hit=44 read=1
+ Planning Time: 0.213 ms
+ Execution Time: 0.587 ms
+(11 rows)
+
+=====================================================================
+4) ix_tb_matricula_data - matrículas feitas num dia
+=====================================================================
+DROP INDEX
+--- ANTES
+                                                                                   QUERY PLAN                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=5861.63..5861.64 rows=1 width=8) (actual time=9.856..12.289 rows=1 loops=1)
+   Buffers: shared hit=2210
+   ->  Gather  (cost=5861.52..5861.63 rows=1 width=8) (actual time=9.779..12.285 rows=2 loops=1)
+         Workers Planned: 1
+         Workers Launched: 1
+         Buffers: shared hit=2210
+         ->  Partial Aggregate  (cost=4861.52..4861.53 rows=1 width=8) (actual time=8.320..8.321 rows=1 loops=2)
+               Buffers: shared hit=2210
+               ->  Parallel Seq Scan on tb_matricula_aluno  (cost=0.00..4860.94 rows=232 width=0) (actual time=0.025..8.304 rows=250 loops=2)
+                     Filter: ((data_matricula >= '2025-03-10 00:00:00+00'::timestamp with time zone) AND (data_matricula < '2025-03-11 00:00:00+00'::timestamp with time zone))
+                     Rows Removed by Filter: 149970
+                     Buffers: shared hit=2210
+ Planning:
+   Buffers: shared hit=11
+ Planning Time: 0.111 ms
+ Execution Time: 12.304 ms
+(16 rows)
+
+CREATE INDEX
+ANALYZE
+--- DEPOIS
+                                                                                  QUERY PLAN                                                                                  
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=983.62..983.63 rows=1 width=8) (actual time=0.475..0.476 rows=1 loops=1)
+   Buffers: shared hit=500 read=3
+   ->  Bitmap Heap Scan on tb_matricula_aluno  (cost=8.25..982.68 rows=373 width=0) (actual time=0.110..0.454 rows=500 loops=1)
+         Recheck Cond: ((data_matricula >= '2025-03-10 00:00:00+00'::timestamp with time zone) AND (data_matricula < '2025-03-11 00:00:00+00'::timestamp with time zone))
+         Heap Blocks: exact=500
+         Buffers: shared hit=500 read=3
+         ->  Bitmap Index Scan on ix_tb_matricula_data  (cost=0.00..8.15 rows=373 width=0) (actual time=0.068..0.069 rows=500 loops=1)
+               Index Cond: ((data_matricula >= '2025-03-10 00:00:00+00'::timestamp with time zone) AND (data_matricula < '2025-03-11 00:00:00+00'::timestamp with time zone))
+               Buffers: shared read=3
+ Planning:
+   Buffers: shared hit=8 read=1
+ Planning Time: 0.182 ms
+ Execution Time: 0.491 ms
+(13 rows)
+
+ROLLBACK
