@@ -2,6 +2,13 @@
 
 Projeto de Banco de Dados II (CCO072) do IESB, semestre 2026/2.
 
+**Professor:** Rodrigo Gonçalves
+
+**Integrantes:**
+- André Matos
+- Luiz Felipe
+- Pedro Campos
+
 ## Arquivos
 
 | Arquivo | Conteúdo |
